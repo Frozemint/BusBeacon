@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class ViewController: UIViewController, XMLParserDelegate {
+class ViewController: UIViewController, XMLParserDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var overrideBusStopID: UITextField!
     @IBOutlet weak var mainTextLabel: UILabel!
@@ -30,7 +31,7 @@ class ViewController: UIViewController, XMLParserDelegate {
 
     func updateUI(){
         mainTextLabel.text = "Stop ID: \(overrideBusStopID.text!)"
-        auxTextLabel.text = "\(arrivals)"
+        auxTextLabel.text = "Buses in: \(arrivals.joined(separator: ", ")) mins"
     }
     
     func getTransLinkData(stopID: String?){
@@ -60,9 +61,11 @@ class ViewController: UIViewController, XMLParserDelegate {
                 //containing the error message.
                 //If it is present, we print the error and abort parsing
                 print("ERROR: \(foundedChar)")
-                mainTextLabel.text = "Error while searching:"
-                auxTextLabel.text = "\(foundedChar)"
                 error = true
+                DispatchQueue.main.async {
+                    self.mainTextLabel.text = "Error while searching:"
+                    self.auxTextLabel.text = "\(foundedChar)"
+                }
                 return
             } else if (currentParsingElement == "StopNo"){
 //                if (!busStopID.contains(foundedChar)){
@@ -85,8 +88,9 @@ class ViewController: UIViewController, XMLParserDelegate {
             // this is ran upon reaching the end of the XML file
             // we print the result
             print("Finished")
-            if (!self.error){
+            if (self.error != true){
 //                print(self.busStopID)
+                print("Finished")
                 print(self.arrivals)
                 self.updateUI()
             }
